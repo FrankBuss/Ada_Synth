@@ -1,0 +1,235 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:switches
+LIBS:relays
+LIBS:motors
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:ada-synth-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L R R?
+U 1 1 59BB0DBA
+P 3650 2000
+F 0 "R?" V 3730 2000 50  0000 C CNN
+F 1 "220" V 3650 2000 50  0000 C CNN
+F 2 "" V 3580 2000 50  0001 C CNN
+F 3 "" H 3650 2000 50  0001 C CNN
+	1    3650 2000
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 59BB0DC8
+P 5250 2850
+F 0 "#PWR?" H 5250 2600 50  0001 C CNN
+F 1 "GND" H 5250 2700 50  0000 C CNN
+F 2 "" H 5250 2850 50  0001 C CNN
+F 3 "" H 5250 2850 50  0001 C CNN
+	1    5250 2850
+	-1   0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR?
+U 1 1 59BB0DCE
+P 5150 2100
+F 0 "#PWR?" H 5150 1950 50  0001 C CNN
+F 1 "+5V" H 5150 2240 50  0000 C CNN
+F 2 "" H 5150 2100 50  0001 C CNN
+F 3 "" H 5150 2100 50  0001 C CNN
+	1    5150 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L DIN_5 J?
+U 1 1 59BB0DD4
+P 3600 2800
+F 0 "J?" H 3600 2450 50  0000 C CNN
+F 1 "MIDI-in" H 3600 2375 50  0000 C CNN
+F 2 "" H 3600 2800 50  0001 C CNN
+F 3 "" H 3600 2800 50  0001 C CNN
+	1    3600 2800
+	1    0    0    1   
+$EndComp
+$Comp
+L 6N135 U?
+U 1 1 59BB0DDB
+P 4800 2450
+F 0 "U?" H 4600 2750 50  0000 L CNN
+F 1 "6N135" H 4800 2750 50  0000 L CNN
+F 2 "Housings_DIP:DIP-8_W7.62mm" H 4600 2150 50  0001 L CIN
+F 3 "" H 4800 2450 50  0001 L CNN
+	1    4800 2450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 3000 3100 3000
+Wire Wire Line
+	3100 3000 3100 2000
+Wire Wire Line
+	3100 2000 3500 2000
+Wire Wire Line
+	3800 2000 4200 2000
+Wire Wire Line
+	4200 2000 4200 2350
+Wire Wire Line
+	4200 2350 4500 2350
+Wire Wire Line
+	4500 2550 4200 2550
+Wire Wire Line
+	4200 2550 4200 3000
+Wire Wire Line
+	4200 3000 4000 3000
+Wire Wire Line
+	5100 2650 5250 2650
+Wire Wire Line
+	5250 2650 5250 2850
+$Comp
+L R R?
+U 1 1 59BB0DF6
+P 5350 2350
+F 0 "R?" V 5430 2350 50  0000 C CNN
+F 1 "10k" V 5350 2350 50  0000 C CNN
+F 2 "" V 5280 2350 50  0001 C CNN
+F 3 "" H 5350 2350 50  0001 C CNN
+	1    5350 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 59BB0DFD
+P 5600 2350
+F 0 "#PWR?" H 5600 2100 50  0001 C CNN
+F 1 "GND" H 5600 2200 50  0000 C CNN
+F 2 "" H 5600 2350 50  0001 C CNN
+F 3 "" H 5600 2350 50  0001 C CNN
+	1    5600 2350
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	5100 2350 5200 2350
+Wire Wire Line
+	5500 2350 5600 2350
+Wire Wire Line
+	5100 2250 5150 2250
+Wire Wire Line
+	5150 2250 5150 2100
+$Comp
+L +5V #PWR?
+U 1 1 59BB0E0E
+P 6000 1850
+F 0 "#PWR?" H 6000 1700 50  0001 C CNN
+F 1 "+5V" H 6000 1990 50  0000 C CNN
+F 2 "" H 6000 1850 50  0001 C CNN
+F 3 "" H 6000 1850 50  0001 C CNN
+	1    6000 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 59BB0E14
+P 6000 2200
+F 0 "R?" V 6080 2200 50  0000 C CNN
+F 1 "470" V 6000 2200 50  0000 C CNN
+F 2 "" V 5930 2200 50  0001 C CNN
+F 3 "" H 6000 2200 50  0001 C CNN
+	1    6000 2200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 2350 6000 2550
+Wire Wire Line
+	6000 2550 6000 2700
+Wire Wire Line
+	6000 1850 6000 2050
+Wire Wire Line
+	5100 2550 6000 2550
+Wire Wire Line
+	6000 2550 6500 2550
+$Comp
+L R R?
+U 1 1 59BB0FD5
+P 6000 2850
+F 0 "R?" V 6080 2850 50  0000 C CNN
+F 1 "3k3" V 6000 2850 50  0000 C CNN
+F 2 "" V 5930 2850 50  0001 C CNN
+F 3 "" H 6000 2850 50  0001 C CNN
+	1    6000 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 59BB1017
+P 6000 3350
+F 0 "R?" V 6080 3350 50  0000 C CNN
+F 1 "5k6" V 6000 3350 50  0000 C CNN
+F 2 "" V 5930 3350 50  0001 C CNN
+F 3 "" H 6000 3350 50  0001 C CNN
+	1    6000 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 59BB104C
+P 6000 3600
+F 0 "#PWR?" H 6000 3350 50  0001 C CNN
+F 1 "GND" H 6000 3450 50  0000 C CNN
+F 2 "" H 6000 3600 50  0001 C CNN
+F 3 "" H 6000 3600 50  0001 C CNN
+	1    6000 3600
+	-1   0    0    -1  
+$EndComp
+Connection ~ 6000 2550
+Wire Wire Line
+	6000 3000 6000 3100
+Wire Wire Line
+	6000 3100 6000 3200
+Wire Wire Line
+	6000 3500 6000 3600
+Wire Wire Line
+	6000 3100 6500 3100
+Connection ~ 6000 3100
+Text GLabel 6500 2550 2    60   Input ~ 0
+MIDI-5V
+Text GLabel 6500 3100 2    60   Input ~ 0
+MIDI-3V
+$EndSCHEMATC
