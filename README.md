@@ -17,9 +17,11 @@ sudo ldconfig
 ```
 - latest GNAT compiler for Linux and for ARM, download and install it from here: http://libre.adacore.com
 - checkout these repositories:
+```
 git clone https://github.com/FrankBuss/Ada_Drivers_Library
 git clone https://github.com/FrankBuss/ada-synth-lib
 git clone https://github.com/FrankBuss/Ada_Synth
+```
 
 ## Build and run the Linux version
 See the comments in the file https://github.com/FrankBuss/Ada_Synth/blob/master/ada/linux/ada_synth.adb
