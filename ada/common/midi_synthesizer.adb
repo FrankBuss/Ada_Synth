@@ -7,7 +7,6 @@ package body MIDI_Synthesizer is
          Value :=
            Float (Self.ADSR_Config (I).Value) * Self.ADSR_Config (I).Factor;
          Self.Env0.Set_Value (I, Value);
-         --  Put_Line (Standard_Error, "index: " & Integer'Image(I) & " = " & Float'Image(Value));
       end loop;
    end Update_ADSR;
 
@@ -17,7 +16,8 @@ package body MIDI_Synthesizer is
       Freq0  : constant access Fixed_Gen            := Fixed;
       Gen0   : constant access Sine_Generator       := Create_Sine (Freq0);
       Env0   : constant access ADSR := Create_ADSR (5, 50, 800, 0.5, null);
-      Mixer0 : constant access Mixer := Create_Mixer ((0 => (Gen0, 0.5)), Env => Env0);
+      Mixer0 : constant access Mixer := Create_Mixer ((0 => (Gen0, 0.5)),
+                                                      Env => Env0);
    begin
       Ret.MIDI_Parser := Create_Parser (Ret);
       for I in Ret.MIDI_Notes'Range loop
@@ -38,7 +38,7 @@ package body MIDI_Synthesizer is
 
    procedure Parse_MIDI_Byte
      (Self     : in out Synthesizer;
-      Received : in     Unsigned_8)
+      Received :        Unsigned_8)
    is
    begin
       Self.MIDI_Parser.Parse (Received);
@@ -46,9 +46,9 @@ package body MIDI_Synthesizer is
 
    overriding procedure Note_On
      (Self     : in out Synthesizer;
-      Channel  : in     Unsigned_8;
-      Note     : in     Unsigned_8;
-      Velocity : in     Unsigned_8)
+      Channel  :        Unsigned_8;
+      Note     :        Unsigned_8;
+      Velocity :        Unsigned_8)
    is
       pragma Unreferenced (Channel);
       pragma Unreferenced (Velocity);
@@ -59,9 +59,9 @@ package body MIDI_Synthesizer is
 
    overriding procedure Note_Off
      (Self     : in out Synthesizer;
-      Channel  : in     Unsigned_8;
-      Note     : in     Unsigned_8;
-      Velocity : in     Unsigned_8)
+      Channel  :        Unsigned_8;
+      Note     :        Unsigned_8;
+      Velocity :        Unsigned_8)
    is
       pragma Unreferenced (Channel);
       pragma Unreferenced (Note);
@@ -78,12 +78,13 @@ package body MIDI_Synthesizer is
    --  For decreasing the following sequence:
    --  B0 66 40
    --  B0 66 3F
-   --  where 66 specifies the encoder number, and goes up to 75 (all value hex).
+   --  where 66 specifies the encoder number, and goes up to 75
+   --  (all values hex).
    overriding procedure Control_Change
      (Self              : in out Synthesizer;
-      Channel           : in     Unsigned_8;
-      Controller_Number : in     Unsigned_8;
-      Controller_Value  : in     Unsigned_8)
+      Channel           :        Unsigned_8;
+      Controller_Number :        Unsigned_8;
+      Controller_Value  :        Unsigned_8)
    is
       pragma Unreferenced (Channel);
       Incr    : Integer := 0;

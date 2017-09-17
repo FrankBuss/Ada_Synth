@@ -30,23 +30,23 @@ package MIDI_Synthesizer is
 
    procedure Parse_MIDI_Byte
      (Self     : in out Synthesizer;
-      Received : in     Unsigned_8);
+      Received :        Unsigned_8);
 
    overriding procedure Note_On
      (Self     : in out Synthesizer;
-      Channel  : in     Unsigned_8;
-      Note     : in     Unsigned_8;
-      Velocity : in     Unsigned_8);
+      Channel  :        Unsigned_8;
+      Note     :        Unsigned_8;
+      Velocity :        Unsigned_8);
    overriding procedure Note_Off
      (Self     : in out Synthesizer;
-      Channel  : in     Unsigned_8;
-      Note     : in     Unsigned_8;
-      Velocity : in     Unsigned_8);
+      Channel  :        Unsigned_8;
+      Note     :        Unsigned_8;
+      Velocity :        Unsigned_8);
    overriding procedure Control_Change
      (Self              : in out Synthesizer;
-      Channel           : in     Unsigned_8;
-      Controller_Number : in     Unsigned_8;
-      Controller_Value  : in     Unsigned_8);
+      Channel           :        Unsigned_8;
+      Controller_Number :        Unsigned_8;
+      Controller_Value  :        Unsigned_8);
 
 private
       procedure Update_ADSR (Self : in out Synthesizer);
