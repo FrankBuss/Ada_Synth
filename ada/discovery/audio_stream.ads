@@ -64,10 +64,13 @@ package Audio_Stream is
    end Double_Buffer_Controller;
 
    Audio_TX_DMA        : STM32.DMA.DMA_Controller renames DMA_1;
-   Audio_TX_DMA_Chan   : STM32.DMA.DMA_Channel_Selector renames STM32.DMA.Channel_0;
-   Audio_TX_DMA_Stream : STM32.DMA.DMA_Stream_Selector renames STM32.DMA.Stream_5;
-   Audio_TX_DMA_Int    : Double_Buffer_Controller (Audio_TX_DMA'Access,
-                                                   Audio_TX_DMA_Stream,
-                                                   Ada.Interrupts.Names.DMA1_Stream5_Interrupt);
+   Audio_TX_DMA_Chan   : STM32.DMA.DMA_Channel_Selector
+                                  renames STM32.DMA.Channel_0;
+   Audio_TX_DMA_Stream : STM32.DMA.DMA_Stream_Selector
+                                  renames STM32.DMA.Stream_5;
+   Audio_TX_DMA_Int    : Double_Buffer_Controller (
+                                  Audio_TX_DMA'Access,
+                                  Audio_TX_DMA_Stream,
+                                  Ada.Interrupts.Names.DMA1_Stream5_Interrupt);
 
 end Audio_Stream;

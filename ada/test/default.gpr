@@ -1,0 +1,11 @@
+project Default is
+
+  for Source_Dirs use (".", "../common");
+
+  package Compiler is
+      for Default_Switches ("ada") use ("-g", "-O0");
+   end Compiler;
+
+   for Main use ("test_ringbuffer.adb");
+
+end Default;

@@ -29,12 +29,14 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  based on the simple_audio example from the Ada_Drivers_Library STM32F4-DISCOVERY board.
+--  based on the simple_audio example from the Ada_Drivers_Library
+--  STM32F4-DISCOVERY board.
 
 --  with Ada.Assertions;  use Ada.Assertions;
 with HAL;                  use HAL;
 with STM32.Device;         use STM32.Device;
 with STM32.Board;          use STM32.Board;
+with STM32.GPIO;    use STM32.GPIO;
 with HAL.Audio;            use HAL.Audio;
 with Audio_Stream;         use Audio_Stream;
 with System;               use System;
@@ -42,13 +44,42 @@ with Interfaces;           use Interfaces;
 with Sound_Gen_Interfaces; use Sound_Gen_Interfaces;
 with Utils;
 with MIDI_Synthesizer; use MIDI_Synthesizer;
+with Serial_IO; use Serial_IO;
 
 procedure Ada_Synth is
 
+   --  start melody
+   type Event is record
+      Time : Integer;
+      Note : Unsigned_8;
+      Note_On : Boolean;
+   end record;
+   type Events is array (Integer range <>) of Event;
+   Melody : constant Events := (
+                                (100, 60, True),
+                                (120, 60, False),
+                                (140, 64, True),
+                                (160, 64, False),
+                                (180, 67, True),
+                                (200, 67, False)
+                               );
+   Start_Time : Integer := 0;
+   Melody_Index : Integer := Melody'First;
+
+   --  audio buffers
    subtype Buffer is Audio_Buffer (1 .. 512);
-   Audio_Data_0 : Buffer;
-   Audio_Data_1 : Buffer;
+   Audio_Data_0 : Buffer := (others => 0);
+   Audio_Data_1 : Buffer := (others => 0);
+
+   --  MIDI parser and sound generator
    Main_Synthesizer : constant access Synthesizer'Class := Create_Synthesizer;
+
+   --  test output for measuring the runtime of the sound generator
+   Test_Out : GPIO_Point := PD0;
+   Configuration : GPIO_Port_Configuration;
+
+   --  temporary variable
+   Data : Unsigned_8;
 
    procedure Copy_Audio (Data : out Buffer);
 
@@ -58,6 +89,7 @@ procedure Ada_Synth is
       Int_Sample : Integer_16 := 0;
    begin
 
+      Test_Out.Set;
       Next_Steps;
       Main_Synthesizer.Mixer0.Next_Samples;
 
@@ -66,14 +98,23 @@ procedure Ada_Synth is
                                    Main_Synthesizer.Mixer0.Buffer (
                                      Main_Synthesizer.Mixer0.Buffer'First +
                                        B_Range_T (I))));
-         --  Data (Data'First + I) := Int_Sample;
-         Data (Data'First + I) := Integer_16 (I * 432452) + Int_Sample;
+         Data (Data'First + I) := Int_Sample;
       end loop;
+      Test_Out.Clear;
 
    end Copy_Audio;
 
 begin
-   --  Assert (Generator_Buffer_Length = Audio_Data_0'Length, "invalid buffer length");
+   Serial.Init (31_250);
+   Enable_Clock (Test_Out);
+   Configuration.Mode        := Mode_Out;
+   Configuration.Output_Type := Push_Pull;
+   Configuration.Speed       := Speed_100MHz;
+   Configuration.Resistors   := Floating;
+   Configure_IO (Test_Out, Configuration);
+
+   --  Assert (
+   --  Generator_Buffer_Length = Audio_Data_0'Length, "invalid buffer length");
    Initialize_LEDs;
 
    Initialize_Audio;
@@ -82,16 +123,36 @@ begin
 
    STM32.Board.Audio_DAC.Play;
 
-   Audio_TX_DMA_Int.Start (Destination => STM32.Board.Audio_I2S.Data_Register_Address,
+   Audio_TX_DMA_Int.Start (Destination =>
+                             STM32.Board.Audio_I2S.Data_Register_Address,
                            Source_0    => Audio_Data_0'Address,
                            Source_1    => Audio_Data_1'Address,
                            Data_Count  => Audio_Data_0'Length);
 
-   Main_Synthesizer.Note_On (0, 60, 0);
-
    loop
+      --  wait until last audio buffer is transferred
       Audio_TX_DMA_Int.Wait_For_Transfer_Complete;
 
+      --  play a melody at start
+      if Melody_Index <= Melody'Last then
+         if Melody (Melody_Index).Time = Start_Time then
+            if Melody (Melody_Index).Note_On then
+               Main_Synthesizer.Note_On (0, Melody (Melody_Index).Note, 100);
+            else
+               Main_Synthesizer.Note_Off (0, Melody (Melody_Index).Note, 0);
+            end if;
+            Melody_Index := Melody_Index + 1;
+         end if;
+         Start_Time := Start_Time + 1;
+      end if;
+
+      --  read MIDI data and parse it
+      while Serial.Available loop
+         Serial.Read (Data);
+         Main_Synthesizer.Parse_MIDI_Byte (Data);
+      end loop;
+
+      --  fill next audio buffer
       if Audio_TX_DMA_Int.Not_In_Transfer = Audio_Data_0'Address then
          Copy_Audio (Audio_Data_0);
       else
@@ -99,4 +160,3 @@ begin
       end if;
    end loop;
 end Ada_Synth;
-

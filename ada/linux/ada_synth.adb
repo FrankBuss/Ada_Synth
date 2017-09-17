@@ -26,8 +26,14 @@ with GNAT.OS_Lib;
 with Interfaces;       use Interfaces;
 with MIDI_Synthesizer; use MIDI_Synthesizer;
 with Write_To_Stdout_Once;
+with Ringbuffers;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
+with Ada.Text_IO;                       use Ada.Text_IO;
 
 procedure Ada_Synth is
+   package FIFO_Package is new Ringbuffers(256, Unsigned_8);
+   subtype FIFO is FIFO_Package.Ringbuffer;
+   Test : FIFO;
    Data   : Unsigned_8;
    Ignore : Integer;
 
@@ -39,6 +45,12 @@ procedure Ada_Synth is
 
    task body Main_Task is
    begin
+      Test.Write(1);
+      Test.Write(2);
+      while not Test.Is_Empty loop
+         Put_Line(Unsigned_8'Image(Test.Read));
+      end loop;
+      OS_Exit(0);
       loop
          select
             accept Data_Received (Data : in Unsigned_8) do
