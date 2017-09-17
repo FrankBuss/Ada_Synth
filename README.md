@@ -1,7 +1,6 @@
 # Ada_Synth
 Ada Synthesizer with MIDI support.
-Note: the ARM version is not working.
-All tested on Debian Linux.
+Tested on Debian Linux and the STM32F407 Discovery board.
 
 ## Prerequisites
 - STM32F4 Discovery board with STM32F407
@@ -36,4 +35,4 @@ Bus 001 Device 016: ID 0483:374b STMicroelectronics ST-LINK/V2.1 (Nucleo-F103RB)
 - click the "build all" button
 - click on the "flash to board" button
 
-When I debug it, apparently it crash with a trap at the line `delay until Clock + Milliseconds (200);` in the procedure `Initialize_Audio`. The simple_audio example works, but when I change it to the full ravenscar configuration, it crashes as well. If someone knows how to fix it, please send a pull request, or send me a message.
+When plug in a headphone in the audio jack of the Discovery board, you should hear a short chord at start. You can connect a digital 3 V MIDI-in signal to PB7, to play some notes with a MIDI piano.
