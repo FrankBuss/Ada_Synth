@@ -42,7 +42,6 @@ with Audio_Stream;         use Audio_Stream;
 with System;               use System;
 with Interfaces;           use Interfaces;
 with Sound_Gen_Interfaces; use Sound_Gen_Interfaces;
-with Utils;
 with MIDI_Synthesizer; use MIDI_Synthesizer;
 with Serial_IO; use Serial_IO;
 
@@ -85,21 +84,16 @@ procedure Ada_Synth is
 
    procedure Copy_Audio (Data : out Buffer)
    is
-      function Sample_To_Int16 is new Utils.Sample_To_Int (Short_Integer);
       Int_Sample : Integer_16 := 0;
    begin
 
       Test_Out.Set;
-      Next_Steps;
-      Main_Synthesizer.Mixer0.Next_Samples;
 
-      for I in Integer range 0 .. (Data'Length - 1) loop
-         Int_Sample := Integer_16 (Sample_To_Int16 (
-                                   Main_Synthesizer.Mixer0.Buffer (
-                                     Main_Synthesizer.Mixer0.Buffer'First +
-                                       B_Range_T (I))));
-         Data (Data'First + I) := Int_Sample;
+      for I in Data'Range loop
+         Int_Sample := Integer_16 (Main_Synthesizer.Next_Sample * 32767.0);
+         Data (I) := Int_Sample;
       end loop;
+
       Test_Out.Clear;
 
    end Copy_Audio;

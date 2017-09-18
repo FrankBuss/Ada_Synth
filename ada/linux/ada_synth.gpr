@@ -1,7 +1,13 @@
 with "../../../ada-synth-lib/ada_synth_lib";
 
 project Ada_Synth is
-   for Object_Dir use "obj";
-   for Source_Dirs use (".", "../common");
-   for Main use ("ada_synth.adb");
+  for Object_Dir use "obj";
+  for Source_Dirs use (".", "../common");
+  for Main use ("ada_synth.adb");
+  package Compiler is
+     for Default_Switches ("Ada") use
+        ("-O3", "-g", "-gnatwaCJ", "-gnatygO", "-gnatp", "-gnatn");
+        --  ("-O3", "-g");
+        --  ("-O3", "-g", "-w");
+   end Compiler;
 end Ada_Synth;

@@ -1,40 +1,61 @@
-
 package body MIDI_Synthesizer is
-   procedure Update_ADSR (Self : in out Synthesizer) is
-      Value : Float;
-   begin
-      for I in Self.ADSR_Config'Range loop
-         Value :=
-           Float (Self.ADSR_Config (I).Value) * Self.ADSR_Config (I).Factor;
-         Self.Env0.Set_Value (I, Value);
-      end loop;
-   end Update_ADSR;
-
    function Create_Synthesizer return access Synthesizer is
       Ret    : constant access Synthesizer := new Synthesizer;
       Base   : Float                       := 8.1757989156;  -- MIDI note C1 0
-      Freq0  : constant access Fixed_Gen            := Fixed;
-      Gen0   : constant access Sine_Generator       := Create_Sine (Freq0);
-      Env0   : constant access ADSR := Create_ADSR (5, 50, 800, 0.5, null);
-      Mixer0 : constant access Mixer := Create_Mixer ((0 => (Gen0, 0.5)),
-                                                      Env => Env0);
    begin
       Ret.MIDI_Parser := Create_Parser (Ret);
       for I in Ret.MIDI_Notes'Range loop
          Ret.MIDI_Notes (I) := Base;
          Base               := Base * 1.059463094359;  -- 2^(1/12)
       end loop;
-      Ret.Freq0       := Freq0;
-      Ret.Env0        := Env0;
-      Ret.Mixer0      := Mixer0;
-      Ret.ADSR_Config :=
-        ((16#66#, 1, 1, 100, 0.05),
-         (16#67#, 1, 1, 100, 0.05),
-         (16#68#, 10, 1, 100, 0.05),
-         (16#69#, 20, 1, 100, 0.05));
-      Ret.Update_ADSR;
       return Ret;
    end Create_Synthesizer;
+
+   function Next_Sample (Self : in out Synthesizer) return Float is
+      Sample : Float;
+   begin
+      --  update generator
+      Self.Generator0.PhaseAccumulator :=
+        Self.Generator0.PhaseAccumulator + Self.Generator0.PhaseIncrement;
+      if Self.Generator0.PhaseAccumulator > 1.0 then
+         Self.Generator0.PhaseAccumulator :=
+           Self.Generator0.PhaseAccumulator - 1.0;
+      end if;
+
+      --  update envelope
+      case Self.ADSR0.State is
+      when Idle => null;
+      when Attack =>
+         Self.ADSR0.Level := Self.ADSR0.Level + Self.ADSR0.Attack;
+         if Self.ADSR0.Level >= 1.0 then
+            Self.ADSR0.State := Decay;
+            Self.ADSR0.Level := 1.0;
+         end if;
+      when Decay =>
+         Self.ADSR0.Level := Self.ADSR0.Level - Self.ADSR0.Decay;
+         if Self.ADSR0.Level <= Self.ADSR0.Sustain then
+            Self.ADSR0.State := Sustain;
+            Self.ADSR0.Level := Self.ADSR0.Sustain;
+         end if;
+      when Sustain => null;
+      when Release =>
+         Self.ADSR0.Level := Self.ADSR0.Level - Self.ADSR0.Release;
+         if Self.ADSR0.Level <= 0.0 then
+            Self.ADSR0.State := Idle;
+            Self.ADSR0.Level := 0.0;
+         end if;
+      end case;
+
+      --  return next sample, clipped to -1/+1
+      Sample := (Self.Generator0.PhaseAccumulator - 0.5) * Self.ADSR0.Level;
+      if Sample > 1.0 then
+         Sample := 1.0;
+      end if;
+      if Sample < -1.0 then
+         Sample := -1.0;
+      end if;
+      return Sample;
+   end Next_Sample;
 
    procedure Parse_MIDI_Byte
      (Self     : in out Synthesizer;
@@ -53,8 +74,10 @@ package body MIDI_Synthesizer is
       pragma Unreferenced (Channel);
       pragma Unreferenced (Velocity);
    begin
-      Self.Env0.Gate_On;
-      Self.Freq0.Set_Value (0, Self.MIDI_Notes (Integer (Note mod 128)));
+      Self.ADSR0.State := Attack;
+      Self.ADSR0.Level := 0.0;
+      Self.Generator0.PhaseIncrement :=
+        Self.MIDI_Notes (Integer (Note)) / Samplerate;
    end Note_On;
 
    overriding procedure Note_Off
@@ -67,18 +90,14 @@ package body MIDI_Synthesizer is
       pragma Unreferenced (Note);
       pragma Unreferenced (Velocity);
    begin
-      Self.Env0.Gate_Off;
+      Self.ADSR0.State := Release;
    end Note_Off;
 
-   --  Testing with an Arturia Beatstep Pro:
-   --  The 16 rotary encoders are configured for relative mode.
-   --  For increasing, the following sequence is sent:
-   --  B0 66 40
-   --  B0 66 41
-   --  For decreasing the following sequence:
-   --  B0 66 40
-   --  B0 66 3F
-   --  where 66 specifies the encoder number, and goes up to 75
+   --  Testing with an AKAI MPK mini:
+   --  The 8 rotary encoders are working in absolute mode.
+   --  The following valus are sent:
+   --  B1 0x yz
+   --  where x is the knob number (1..8) and yz is the value (0..7f)
    --  (all values hex).
    overriding procedure Control_Change
      (Self              : in out Synthesizer;
@@ -87,32 +106,22 @@ package body MIDI_Synthesizer is
       Controller_Value  :        Unsigned_8)
    is
       pragma Unreferenced (Channel);
-      Incr    : Integer := 0;
    begin
-      if Controller_Value = 16#41# then
-         Incr := 1;
-      elsif Controller_Value = 16#3f# then
-         Incr := -1;
-      end if;
-      if Incr /= 0 then
-         for I in Self.ADSR_Config'Range loop
-            if Self.ADSR_Config (I).Controller_Index = Controller_Number then
-               Self.ADSR_Config (I).Value := Self.ADSR_Config (I).Value + Incr;
-               if Self.ADSR_Config (I).Value <
-                 Self.ADSR_Config (I).Min_Value
-               then
-                  Self.ADSR_Config (I).Value := Self.ADSR_Config (I).Min_Value;
-               end if;
-               if Self.ADSR_Config (I).Value >
-                 Self.ADSR_Config (I).Max_Value
-               then
-                  Self.ADSR_Config (I).Value := Self.ADSR_Config (I).Max_Value;
-               end if;
-               Self.Update_ADSR;
-               exit;
-            end if;
-         end loop;
-      end if;
+      case Controller_Number is
+      when 1 =>
+         Self.ADSR0.Attack :=
+           Float (128 - Controller_Value) * 0.5 / Samplerate;
+      when 2 =>
+         Self.ADSR0.Decay :=
+           Float (128 - Controller_Value) * 0.5 / Samplerate;
+      when 3 =>
+         Self.ADSR0.Sustain :=
+           Float (Controller_Value) * 0.007;
+      when 4 =>
+         Self.ADSR0.Release :=
+           Float (128 - Controller_Value) * 0.02 / Samplerate;
+         when others => null;
+      end case;
    end Control_Change;
 
 end MIDI_Synthesizer;
